@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirFlowPro</title>
+    <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            text-align: center;
+            background-color: #c1d4d7;
+            padding: 20px;
+            margin: 0;
+        }
+
+        header {
+            background-color: rgba(0, 121, 107, 0.7);
+            color: white;
+            padding: 15px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .title-box {
+            display: inline-block;
+            animation: fadeIn 2s ease-in-out;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1001;
+        }
+
+        .animated-title {
+            font-size: 3.5em;
+            margin: 0;
+            background: linear-gradient(90deg, #00796b, #004d40);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .button {
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: red;
+            color: white;
+            margin-left: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content {
+            padding-top: 150px;
+        }
+
+        .box {
+            background: rgba(255, 255, 255, 0.537);
+            padding: 15px;
+            border-radius: 40px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 5px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .switch {
+          position: relative;
+          display: inline-block;
+          width: 60px;
+          height: 34px;
+        }
+
+        .switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+
+        .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          -webkit-transition: .4s;
+          transition: .4s;
+        }
+
+        .slider:before {
+          position: absolute;
+          content: "";
+          height: 26px;
+          width: 26px;
+          left: 4px;
+          bottom: 4px;
+          background-color: white;
+          -webkit-transition: .4s;
+          transition: .4s;
+        }
+
+        input:checked + .slider {
+          background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+          box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+          -webkit-transform: translateX(26px);
+          -ms-transform: translateX(26px);
+          transform: translateX(26px);
+        }
+
+
+        .slider.round {
+          border-radius: 34px;
+        }
+
+        .slider.round:before {
+          border-radius: 50%;
+        }
+
+        h1 {
+            color: #00796b;
+        }
+        #picker {
+            margin: 20px auto;
+            width: 220px;
+        }
+        .info {
+            background: white;
+            display: inline-block;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 10px;
+        }
+        span {
+            font-weight: bold;
+            color: #007BFF;
+        }
+        input[type="range"] {
+            width: 80%;
+            margin-top: 10px;
+        }
+        .header-right {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .header-right .button {
+            margin-right: 10px; /* Aggiungi un margine destro per spostare leggermente a sinistra */
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="title-box">
+            <h1 class="animated-title">AirFlowPro</h1>
+        </div>
+        
+        <button id="toggleButton" class="button" onclick="toggleProgram()">OFF</button>
+        <div class="header-right">
+            <a href="/about" class="button" style="background-color: rgba(0, 183, 255, 0); margin-left: 10px;">About</a>
+        </div>
+    </header>
+    <div class="content">
+        <div class="box">
+            <h1>Scegli il colore per il LED</h1>
+            <div id="picker" hidden></div>
+        </div>
+        <div class="box">
+            <h1>Velocità della ventola in base alla distanza</h1>
+            <div class="info">
+                <p>State: <span id="state">{{ state }}</span></p>
+                <p>Velocità: <span id="speed">0%</span></p>
+                <p>
+                    Velocità automatica:
+                    <label class="switch">
+                    <input type="checkbox" id="autoModeSwitch" onclick="handleAutoMode(this)" disabled>
+                    <span class="slider round"></span>
+                    </label>
+                </p>
+                <p>
+                    Velocità manuale:
+                    <input type="range" id="speedRange" min="0" max="100" value="{{ (speed * 100) }}" disabled>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let colorPicker = new iro.ColorPicker("#picker", {
+            width: 200,
+            color: "#ff0000"
+        });
+
+        colorPicker.on("color:change", function(color) {
+
+            fetch("/setState/LED", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ r: color.rgb.r, g: color.rgb.g, b: color.rgb.b })
+            });
+
+        });
+
+        function handleAutoMode(checkbox) {
+            let isAuto = checkbox.checked;
+            document.getElementById("speedRange").disabled = isAuto;
+
+            if(isAuto) {
+                fetch("/setState/AUTO", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({})
+                });
+            } else {
+                let speedValue = (document.getElementById("speedRange").value)/100;
+                fetch("/setState/MANUAL", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ speed: speedValue })
+                });
+            }
+        }
+
+        document.getElementById("speedRange").addEventListener("input", function() {
+            let speedValue = this.value / 100;
+            document.getElementById("speed").innerText = this.value + '%';
+            fetch("/setState/MANUAL", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ speed: speedValue })
+            });
+        });
+
+        function toggleProgram() {
+            const button = document.getElementById("toggleButton");
+            const isOn = button.innerText === "ON";
+            button.innerText = isOn ? "OFF" : "ON";
+            button.style.backgroundColor = isOn ? "red" : "green";
+
+            document.getElementById("speedRange").disabled = isOn;
+            document.getElementById("autoModeSwitch").disabled = isOn;
+            if(!isOn && document.getElementById("autoModeSwitch").checked) document.getElementById("autoModeSwitch").checked= false;
+            document.getElementById("picker").hidden = isOn;
+
+            if (isOn) {
+                fetch("/toggleProgram", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({})
+                });
+            }
+
+        }
+    </script>
+</body>
+</html>
